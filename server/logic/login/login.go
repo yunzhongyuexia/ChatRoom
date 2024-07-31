@@ -1,6 +1,7 @@
 package login
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"server/db"
@@ -35,8 +36,13 @@ func NameAndPwdLogin(ctx *gin.Context) {
 	//	ctx.JSON(http.StatusPreconditionFailed, tools.ECode{Code: 1, Message: "验证码校验失败！"})
 	//	return
 	//}
-	//设置Session到Redis
-	_ = db.SetSessionLogin(ctx, user.Name, user.Uid)
+	// 调用 GenerateToken 生成 Token
+	token, err := tools.GenerateToken(user.Uid, user.Name)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, tools.ECode{Code: 1, Message: "生成 Token 失败"})
+		return
+	}
+	fmt.Println(token)
 	ctx.JSON(http.StatusOK, tools.ECode{Code: 0, Message: "登录成功！"})
 }
 

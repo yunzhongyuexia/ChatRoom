@@ -11,6 +11,7 @@ import (
 	"server/logic/login"
 	"server/logic/register"
 	"server/logic/webSocket"
+	"server/middleware"
 	"syscall"
 	"time"
 )
@@ -41,6 +42,17 @@ func NewRouter() {
 	{ //验证码接口
 		r.GET("/captcha", captcha.GetCaptcha)
 		r.POST("/captcha/verify", captcha.GetVerify)
+	}
+
+	// JWT路由组
+	JWTGroup := r.Group("/")
+	JWTGroup.Use(middleware.JWTMiddleware())
+	{
+		JWTGroup.GET("/protected", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"message": "This is a protected message",
+			})
+		})
 	}
 
 	server := &http.Server{Addr: ":8088", Handler: r}
